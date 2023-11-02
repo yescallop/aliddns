@@ -1,20 +1,21 @@
 #!/bin/bash
 
 urlencode() {
-    # urlencode <string>
+  # urlencode <string>
 
-    local LANG=C
-    local length="${#1}"
-    for (( i = 0; i < length; i++ )); do
-        local c="${1:i:1}"
-        case $c in
-            [a-zA-Z0-9.~_-]) printf "$c" ;;
-            *) printf '%%%02X' "'$c" ;;
-        esac
-    done
+  local LANG=C
+  local length="${#1}"
+  for (( i = 0; i < length; i++ )); do
+    local c="${1:i:1}"
+    case $c in
+        [a-zA-Z0-9.~_-]) printf "$c" ;;
+        *) printf '%%%02X' "'$c" ;;
+    esac
+  done
 }
 
 sleep 10
+
 while true
 do
   version='2015-01-09'
@@ -40,10 +41,16 @@ do
 
   rr='@'
   type='A'
-  value=$(curl -s 'http://members.3322.org/dyndns/getip')
+
+  # For public IPv4 address:
+  # value=$(curl -s 'http://members.3322.org/dyndns/getip')
+
   # For global IPv6 address:
   # type='AAAA'
-  # value=$(ip -6 addr show dev eth0 scope 0 | sed -e's/^.*inet6 \([^ ]*\)\/.*$/\1/;t;d')
+  # [[ "$(ip addr show dev eth0 scope 0)" =~ inet6\ ([^/]+) ]]
+
+  [[ "$(ip addr show dev eth0 scope 0)" =~ inet\ ([^/]+) ]]
+  value=${BASH_REMATCH[1]}
 
   query="AccessKeyId=$accessKeyId&Action=$action&RR=$(urlencode $rr)&RecordId=$recordId&SignatureMethod=$signatureMethod&SignatureNonce=$signatureNonce&SignatureVersion=$signatureVersion&Timestamp=$(urlencode $timestamp)&Type=$type&Value=$(urlencode $value)&Version=$version"
   toSign="GET&$(urlencode "/")&$(urlencode $query)"
@@ -51,7 +58,14 @@ do
   requestQuery="$query&Signature=$(urlencode $signature)"
   url="http://alidns.aliyuncs.com/?$requestQuery"
 
-  curl $url
-  echo
+  resp=$(curl -sS $url)
+
+  if [[ ! "$resp" =~ Error ]]; then
+    echo "Updated: $value"
+  elif [[ ! "$resp" =~ DomainRecordDuplicate ]]; then
+    [[ "$resp" =~ \<Message\>(.+)\</Message\> ]]
+    echo "Error: ${BASH_REMATCH[1]}"
+  fi
+  
   sleep 60
 done
