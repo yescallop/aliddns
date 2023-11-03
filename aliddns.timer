@@ -1,0 +1,9 @@
+[Unit]
+Description=AliDDNS
+
+[Timer]
+OnBootSec=10
+OnUnitActiveSec=60
+
+[Install]
+WantedBy=timers.target
