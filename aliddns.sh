@@ -53,7 +53,7 @@ query="AccessKeyId=$accessKeyId&Action=$action&RR=$(urlencode $rr)&RecordId=$rec
 toSign="GET&$(urlencode "/")&$(urlencode $query)"
 signature=$(echo -n $toSign | openssl sha1 -binary -hmac "$accessKeySecret&" | base64)
 requestQuery="$query&Signature=$(urlencode $signature)"
-url="http://alidns.aliyuncs.com/?$requestQuery"
+url="https://dns.aliyuncs.com/?$requestQuery"
 
 resp=$(curl -sS $url)
 
