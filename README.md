@@ -7,8 +7,8 @@ A bash script with systemd units providing DDNS service through Aliyun OpenAPI.
 Edit `aliddns.sh` as instructed in the file and run the following commands as root.
 
 ```bash
-cp aliddns.sh /usr/local/bin/
-cp aliddns.service aliddns.timer /etc/systemd/system/
+install aliddns.sh /usr/local/bin/
+install -m644 aliddns.service aliddns.timer /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable --now aliddns.timer
 ```
