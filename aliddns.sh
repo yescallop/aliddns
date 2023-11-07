@@ -42,12 +42,14 @@ type='A'
 # For public IPv4 address:
 # value=$(curl -sS 'http://members.3322.org/dyndns/getip')
 
-# For global IPv6 address:
-# type='AAAA'
-# [[ "$(ip addr show dev eth0 scope 0)" =~ inet6\ ([^/]+) ]]
+# For global IPv6 address: use type='AAAA' above and inet6 in the regex below
 
-[[ "$(ip addr show dev eth0 scope 0)" =~ inet\ ([^/]+) ]]
-value=${BASH_REMATCH[1]}
+if [[ "$(ip addr show dev eth0 scope 0)" =~ inet\ ([^/]+) ]]; then
+  value=${BASH_REMATCH[1]}
+else
+  echo "Error: No address is available."
+  exit
+fi
 
 query="AccessKeyId=$accessKeyId&Action=$action&RR=$(urlencode $rr)&RecordId=$recordId&SignatureMethod=$signatureMethod&SignatureNonce=$signatureNonce&SignatureVersion=$signatureVersion&Timestamp=$(urlencode $timestamp)&Type=$type&Value=$(urlencode $value)&Version=$version"
 toSign="GET&$(urlencode "/")&$(urlencode $query)"
@@ -61,5 +63,5 @@ if [[ ! "$resp" =~ Error ]]; then
   echo "<5>Updated: $value"
 elif [[ ! "$resp" =~ DomainRecordDuplicate ]]; then
   [[ "$resp" =~ \<Message\>(.+)\</Message\> ]]
-  echo "<4>Error: ${BASH_REMATCH[1]}"
+  echo "Error: ${BASH_REMATCH[1]}"
 fi
