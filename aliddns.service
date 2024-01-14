@@ -4,6 +4,6 @@ After=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/bin/aliddns.sh
+ExecStart=/usr/local/sbin/aliddns.sh
 LogLevelMax=notice
 SyslogLevel=warning
