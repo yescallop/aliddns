@@ -44,7 +44,7 @@ type='A'
 
 # For global IPv6 address: use type='AAAA' above and inet6 in the regex below
 
-if [[ "$(ip addr show dev eth0 scope 0)" =~ inet\ ([^/]+) ]]; then
+if [[ "$(ip addr show dev eth0 scope 0 -deprecated)" =~ inet\ ([^/]+) ]]; then
   value=${BASH_REMATCH[1]}
 else
   echo "Error: No address is available."
