@@ -2,7 +2,7 @@
 Description=AliDDNS
 
 [Timer]
-OnBootSec=10
+OnBootSec=60
 OnUnitActiveSec=60
 
 [Install]
